@@ -119,16 +119,12 @@ Comme nous allons nous connecter à notre serveur exposé depuis un réseaux qui
 <br>
 
 Il existe plusieurs algorithmes permettant de créer une paire de clé SSH.
-<br>
 
-**DSA**
-Dangereux et plus utiliser depuis la version 7.0 de OpenSSH
+* **DSA**: Dangereux et plus utiliser depuis la version 7.0 de OpenSSH
 
-**RSA**
-Offrant une sécurité acceptable si la longeur de la clé est de 3072 ou 4096 bits
+* **RSA**: Offrant une sécurité acceptable si la longeur de la clé est de 3072 ou 4096 bits
 
-**Ed25519**
-L'algorithme à prévilégier de nos jours, car actuellement le plus sûr.
+* **Ed25519**: L'algorithme à prévilégier de nos jours, car actuellement le plus sûr.
 
 <br>
 
@@ -230,9 +226,20 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
 
 <br>
 
-<block-title> Ajouter un two-factor authentication SSH </block-title>
+<block-title> Ajouter un système MFA à la connexion SSH </block-title>
 
-Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.
+L'utilisation d'un mot de passe ou la clé SSH sont 2 facteur d'authentification différent. Un facteur d'authentification est une information utiliser afin de prouvé que l'utilisateur à le droit d'effectuer des actions sur un système tel que de s'y connecter. Ces facteurs utilisent différent canaux d'authentification tel qu'un ordinateur, un téléphone cellulaire ou une clé physique d'authentification. C'est le média qui sert a transmettre un facteur d'authentification à l'utilisateur. Afin de renforcer la connexion ssh à notre serveur il est une excellente pratique d'appliquer une sécurité supplémentaire par l'utilisation de MFA (Multi-factor authentification). De cet facons, un attaquant qui réussit à compromettre votre ordinateur de bureau doit aussi obtenir le controle d'un ou plusieurs autres appareils vous appartient afin de pouvoir effectuer ses actions malicieuses. Les types de facteurs se catégorise en 3 groupes:
+
+* Quelque chose que vous connaissez: un mot de passe ou une question de sécurité
+* Quelque chose que vous possédez: une application d'authentification ou un token de sécurité.
+* Quelque chose que vous êtes: une empreinte digitale, ou la reconnaissance vocale
+
+L'un des facteur fréquemment utilisé par les différents systèmes est une application OATH_TOTP. OATH_TOTP (Open Authentication Time-Based One-Time Password)  est un protocole utilisant un mot de passe généralement composé de 6 à 8 caractère utilisable une seul fois qui se rafraichie àprès une période de temps d'environ 30 secondes. Un exemple de ces applications serait Google authenticator ou Microsoft authenticator. Un tel système peut être configuré de la facons suivante.
+
+1. Installer Google PAM
+2. Configurer OpenSSH
+3. Rendre SSh attentif au MFA
+4. (optionel) Ajouter un 3e facteur d'authentification
 
 <div style="page-break-after: always;"></div>
 
@@ -242,3 +249,4 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
 [Désactivé la connexion root SSH](https://www.ionos.fr/assistance/serveurs-et-cloud/premiers-pas/informations-importantes-sur-la-securite-de-votre-serveur/desactiver-la-connexion-root-ssh/)
 [Qu'est-ce qu'une clé SSH](https://help.gnome.org/users/seahorse/stable/about-ssh.html.fr#:~:text=L'avantage%20d'utiliser%20une,et%20un%20mot%20de%20passe.)
 [schéma d'authentification SSH](https://spectralops.io/blog/guide-to-ssh-keys-in-gitlab/)
+[Configuration MFA](https://www.digitalocean.com/community/tutorials/how-to-set-up-multi-factor-authentication-for-ssh-on-ubuntu-16-04)
