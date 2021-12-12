@@ -155,6 +155,7 @@ Afin de s'authentifier au serveur avec sa clé ssh, le client procède comme sui
 6. Le client et le serveur s'entende sur l'utilisation d'une clé de session
 7. Échange de donné encrypté avec un algorithme symétrique et la clé de session
 
+### Initialisation d'une connection
 
 ![authentiufication par clé ssh](images/SSHkeydiagram.png)[^3]
 
@@ -277,12 +278,65 @@ Do you want to enable rate-limiting (y/n)`
     * Redémarer le service sshd
   `sudo systemctl restart sshd.service`
 
+<block-title> Configuré un interval de délais d'innactivité[^9]</block-title>
+Cela permet de fermer une connexion ssh qui n'est plus utilisé. Cela évite de consommé inutilement des ressources systèmes tout en évitant qu'une personne tierce puisse accédé à la connexion en accédant à l'ordinateur de l'utilisateur connecté. Pour cela, il suffit de :
+
+1. Ouvrir le fichier sshd_config avec votre éditeur préférer
+`sudo nano /etc/ssh/sshd_config`
+2. Décommenter et attribué la valeur désirer en seconde `300` (5min) à la variable **ClientAliveInterval**
+3. Sauvegarder et fermer
+4. relancer le service
+`sudo systemctl restart sshd.service`
+
+<block-title> Changer le port SSH par un personnalisé[^9]</block-title>
+Le port utiliser par défaut est le 22. Cette valeur est largement connu au sein des attaquant. Les différents outil de sécurité et d'intrusion utilise donc principalement ce port. Même si le modifier reviens à faire de la sécurité par l'ignorance qui est très faible comme sécurité, cela permettera néanmoins de réduire considérablement les attaques automatisés sur le port SSH
+
+1. Ouvrir le fichier sshd_config avec votre éditeur préférer
+`sudo nano /etc/ssh/sshd_config`
+2. Décommenter et attribué la valeur désirer ex. 500 à la variable **Port**
+3. Sauvegarder et fermer
+4. relancer le service
+`sudo systemctl restart sshd.service`
+> Ne pas oublier de modifier le transfert des port sur le routeur pour la même valeur.
+
+<block-title> Désactivé le transfer X11[^8][^9]</block-title>
+En plus d'être inutile pour un serveur qui est dans 99.9% des cas utiliser avec un terminal, cela empêchera certain vecteur d'attaque qui exploite le transfert X11 qui n'a pas été concu en ayant la sécurité comme point fort lors du développement. Le fait qu'il soit activé n'est pas mauvais dans le cas ou le serveur n'est pas compromis. Le transfert X11 amène une plus grande confiance du coté serveur qu'à celui du client. S'il a été comprimis il peut servir à effectuer une multitude d'action sur la machine du client tel qu'ouvrir ou fermer des fenêtre et espionné les touches saisie et injecté des événement clavier ou sourie. En le désactivant, nous évitons un potentiel vecteur de propagation d'un malware sur la machine client depuis notre serveur.
+Pour cela, il suffit de :
+
+1. Ouvrir le fichier sshd_config avec votre éditeur préférer
+`sudo nano /etc/ssh/sshd_config`
+2. Changer la valeur pour **no** à la variable **X11Forwarding**
+3. Sauvegarder et fermer
+4. relancer le service
+`sudo systemctl restart sshd.service`
+
+
 <div style="page-break-after: always;"></div>
 
 <br>
+
+## Attaque pouvant être mené sur un home server
+Tous serveurs peut être la cible d'attaque pricpipalement lorsque les services sont exposer sur le web. 
+parmis celle-ci on peut retrouver les attaques Man-in-the-Middle, le deni de service, brute force des identifiants du port ssh. Certaines sont plus facile à contrer que d'autres.
+
+### Man-in-the-Middle [^5]
+Cette attaque où comme son nom l'indique un acteur malveillant se place entre nous et la machine ou le service que l'on veux joindre a pour but d'intercepter les communications échanger entre les deux entités sans que sa présence ne soit remarquer. dans ce type d'attaque l'homme du milieux peut lire, mais aussi modifier les messages échangés. Le protocole de la connexion SSH avec une clé ssh permet de se prémunir contre cet attaque. En effet, dans le cas ou un utilisateur nommé Ève tenterait de s'imissé entre l'utilisateur Alice et le server de Bob, ève pourrait tenter d'initier la connexion avec Bob à la place d'alice et se faire passer pour le serveur de bob auprès d'alice. Cependant, ève ne réussirait pas a joindre le serveur de bob puisqu'elle ne réusirais pas a passé l'étape de l'encryption du mot générer aléatoirement [à l'étape 2](#initialisation-dune-connection) puisque sa clé ssh publique n'est pas sauvegarder dans le serveur de bob et donc quand bob tenterais de décoder le message recus par ève, celui-ci ne corresponderait pas au mot qu'il a initialement envoyer et la connection serait abandonné.
+
+### Attaque par déni de service (DOS)[^6][^7]
+Cette attaque qui vise a rendre un système indisponible peut prendre différentes formes. La saturation de la bande passante qui rend ainsi le serveur injoignable et même l'épuisement des ressources système de la machine qui l'empêche de répondre au traffic légitime. Le déni de service opère donc par l'envoie d'une multitude de requêtes rapidement sur la machine visé afin de rendre le service instable voir indisponible. Cette attque est la plus difficile à mitiger pour un home serveur puisque même si des règle de parefeu sont appliquer et bloque les connexions malicieuses. Les demandes de connexion elles peuvent tout de même arriver en quantité énorme et saturé la bande passante. La solution la plus probable dans ce cas est que le fournisseur d'accès internet bloque les requêtes faites vers le home server. Cela dit plusieurs service existe afin de mitiger au maximum ce type d'attaque. Parmis eux on trouve SSHGuard, Fail2ban and DenyHosts. Aucun d'eux n'as été tester ici.
+
+## Pour aller plus loin
+- [ ] mettre en place une attaque dos
+- [ ] créer un script regrouppant les différentes configuration mentionné afin d'automatiser la sécurisation du serveur
+- [ ] tester SSHGuard, Fail2ban and DenyHosts pour contrer les attaque par force brute
 
 <block-title>Référence</block-title>
 [^1]: [Désactivé la connexion root SSH](https://www.ionos.fr/assistance/serveurs-et-cloud/premiers-pas/informations-importantes-sur-la-securite-de-votre-serveur/desactiver-la-connexion-root-ssh/)
 [^2]: [Qu'est-ce qu'une clé SSH](https://help.gnome.org/users/seahorse/stable/about-ssh.html.fr#:~:text=L'avantage%20d'utiliser%20une,et%20un%20mot%20de%20passe.)
 [^3]: [schéma d'authentification SSH](https://spectralops.io/blog/guide-to-ssh-keys-in-gitlab/)
 [^4]: [Configuration MFA](https://www.digitalocean.com/community/tutorials/how-to-set-up-multi-factor-authentication-for-ssh-on-ubuntu-16-04)
+[^5]: [Man in the middle](https://fr.wikipedia.org/wiki/Attaque_de_l%27homme_du_milieu)
+[^6]: [Secure a home server from a dos attack](https://serverfault.com/questions/1041907/how-to-secure-a-home-server-from-a-dos-attack-questions-about-research)
+[^7]: [préserver l'accessibilité de votre serveur](https://www.ovh.com/ca/fr/anti-ddos/principe-anti-ddos.xml)
+[^8]: [security concern with X11 forwarding](https://security.stackexchange.com/questions/14815/security-concerns-with-x11-forwarding)
+[^9]: [best practice](https://securitytrails.com/blog/mitigating-ssh-based-attacks-top-15-best-security-practices)
