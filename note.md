@@ -79,7 +79,7 @@ Sachant que notre server peut être accessible ou interrogé par n'importe qui s
 
 <br>
 
-<block-title> Désactiver le root login </block-title>
+<block-title> Désactiver le root login[^1] </block-title>
 L'une des premières étapes dans la sécurisation d'un serveur est de désactivé l'accès a celui-ci de l'extérieur avec le compte de super utilisateur. Comme l'une des méthodes d'accès via un terminal est SSH, nous devons d'abort désactivé la connection à la machine depuis l'utilisateur root.
 Pour se faire il faut:
 
@@ -112,9 +112,9 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
 
 ### Rendre SSH plus sécuritaire
 
-<block-title> Utiliser clef SSH plutôt qu'un mot de passe </block-title>
+<block-title> Utiliser clef SSH plutôt qu'un mot de passe [^2]</block-title>
 
-Comme nous allons nous connecter à notre serveur exposé depuis un réseaux qui n'est pas sécurisé l'utilisation d'une clé Sécure shell nous permettera de créer une connection sécurisé. La clé SSH utilise de la cryptographie à clé publique. C'est un algorithme composé de deux clés. Une publique mise à la disponibilité de tous et une privé bien garder sur la machine du client qui sert à déchiffrer les messages chiffrés à l'aide de la clé publique correspondante.
+Comme nous allons nous connecter à notre serveur exposé depuis un réseaux qui n'est pas sécurisé, l'utilisation d'une clé Sécure shell nous permettera de créer une connection sécurisé. La clé SSH utilise de la cryptographie à clé publique. C'est un algorithme composé de deux clés. Une publique mise à la disponibilité de tous et une privé bien garder sur la machine du client qui sert à déchiffrer les messages chiffrés à l'aide de la clé publique correspondante.
 
 <br>
 
@@ -156,7 +156,7 @@ Afin de s'authentifier au serveur avec sa clé ssh, le client procède comme sui
 7. Échange de donné encrypté avec un algorithme symétrique et la clé de session
 
 
-![authentiufication par clé ssh](images/SSHkeydiagram.png)
+![authentiufication par clé ssh](images/SSHkeydiagram.png)[^3]
 
 <br>
 
@@ -226,7 +226,7 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
 
 <br>
 
-<block-title> Ajouter un système MFA à la connexion SSH </block-title>
+<block-title> Ajouter un système MFA à la connexion SSH [^4]</block-title>
 
 L'utilisation d'un mot de passe ou la clé SSH sont 2 facteur d'authentification différent. Un facteur d'authentification est une information utiliser afin de prouvé que l'utilisateur à le droit d'effectuer des actions sur un système tel que de s'y connecter. Ces facteurs utilisent différent canaux d'authentification tel qu'un ordinateur, un téléphone cellulaire ou une clé physique d'authentification. C'est le média qui sert a transmettre un facteur d'authentification à l'utilisateur. Afin de renforcer la connexion ssh à notre serveur il est une excellente pratique d'appliquer une sécurité supplémentaire par l'utilisation de MFA (Multi-factor authentification). De cet facons, un attaquant qui réussit à compromettre votre ordinateur de bureau doit aussi obtenir le controle d'un ou plusieurs autres appareils vous appartient afin de pouvoir effectuer ses actions malicieuses. Les types de facteurs se catégorise en 3 groupes:
 
@@ -237,16 +237,52 @@ L'utilisation d'un mot de passe ou la clé SSH sont 2 facteur d'authentification
 L'un des facteur fréquemment utilisé par les différents systèmes est une application OATH_TOTP. OATH_TOTP (Open Authentication Time-Based One-Time Password)  est un protocole utilisant un mot de passe généralement composé de 6 à 8 caractère utilisable une seul fois qui se rafraichie àprès une période de temps d'environ 30 secondes. Un exemple de ces applications serait Google authenticator ou Microsoft authenticator. Un tel système peut être configuré de la facons suivante.
 
 1. Installer Google PAM
-2. Configurer OpenSSH
-3. Rendre SSh attentif au MFA
-4. (optionel) Ajouter un 3e facteur d'authentification
+   * Installer l'application
+  `sudo apt install libpam-google-authenticator`
+   * Lancer l'application
+  `google-authenticator`
+   * Répondre 'y' à la question `Do you want authentication tokens to be time-based (y/n)`
+   * Répondre 'y' à la question 
+   `Do you want to disallow multiple uses of the same authentication
+token? This restricts you to one login about every 30s, but it increases
+your chances to notice or even prevent man-in-the-middle attacks (y/n)`
+   * Répondre 'n' à la question
+   `By default, tokens are good for 30 seconds and in order to compensate for
+possible time-skew between the client and the server, we allow an extra
+token before and after the current time. If you experience problems with poor
+time synchronization, you can increase the window from its default
+size of 1:30min to about 4min. Do you want to do so (y/n)`
+   * Répondre 'y' à la question
+  `If the computer that you are logging into isn't hardened against brute-force
+login attempts, you can enable rate-limiting for the authentication module.
+By default, this limits attackers to no more than 3 login attempts every 30s.
+Do you want to enable rate-limiting (y/n)`
+
+2. Configurer Pam pour OpenSSH
+   * Ouvrir la configuration sshd avec votre éditeur préférer
+  `sudo nano /etc/pam.d/sshd`
+   * Commenter la ligne `include common-auth` au début du fichier avec le caractère **#**
+      > Cela informe PAM de ne pas demander pour un mot de passe, mais seulement pour la vérification du second facteur. Laisser la ligne non commenté utilise 3 facteurs (la clé ssh, le mot de passe du compte, la vérification du TOTP)
+   * Ajouter la ligne `auth required pam_google_authenticator.so nullok` à la toute fin du fichier
+     > nullok signifi que la méthode d'authentification PAM est optionnel. cela permet à un utilisateur sans jeton OATH-TOTP de se tout de même se connecter via ssh.
+     **Important**: Retirer la valeur nullok lorsque tout les utilisateurs on configurer leur jeton OATH-TOTP
+   * Sauvegarder et fermer
+3. Configurer ssh pour qu'il gère l'authentification PAM
+    * ouvrir le fichier `/etc/ssh/sshd_config` dans votre éditeur préférer
+ `sudo nano /etc/ssh/sshd_config`
+    * Trouver le paramètre `ChallengeResponseAuthentication` et assigner la valeur yes
+    * Ajouter la ligne suivante
+  `AuthenticationMethods publickey,password publickey,keyboard-interactive`
+    * Sauvegarder et fermer le fichier
+    * Redémarer le service sshd
+  `sudo systemctl restart sshd.service`
 
 <div style="page-break-after: always;"></div>
 
 <br>
 
 <block-title>Référence</block-title>
-[Désactivé la connexion root SSH](https://www.ionos.fr/assistance/serveurs-et-cloud/premiers-pas/informations-importantes-sur-la-securite-de-votre-serveur/desactiver-la-connexion-root-ssh/)
-[Qu'est-ce qu'une clé SSH](https://help.gnome.org/users/seahorse/stable/about-ssh.html.fr#:~:text=L'avantage%20d'utiliser%20une,et%20un%20mot%20de%20passe.)
-[schéma d'authentification SSH](https://spectralops.io/blog/guide-to-ssh-keys-in-gitlab/)
-[Configuration MFA](https://www.digitalocean.com/community/tutorials/how-to-set-up-multi-factor-authentication-for-ssh-on-ubuntu-16-04)
+[^1]: [Désactivé la connexion root SSH](https://www.ionos.fr/assistance/serveurs-et-cloud/premiers-pas/informations-importantes-sur-la-securite-de-votre-serveur/desactiver-la-connexion-root-ssh/)
+[^2]: [Qu'est-ce qu'une clé SSH](https://help.gnome.org/users/seahorse/stable/about-ssh.html.fr#:~:text=L'avantage%20d'utiliser%20une,et%20un%20mot%20de%20passe.)
+[^3]: [schéma d'authentification SSH](https://spectralops.io/blog/guide-to-ssh-keys-in-gitlab/)
+[^4]: [Configuration MFA](https://www.digitalocean.com/community/tutorials/how-to-set-up-multi-factor-authentication-for-ssh-on-ubuntu-16-04)
