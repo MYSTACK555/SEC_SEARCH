@@ -39,6 +39,55 @@ mettre devant un vpn
 
 art
 
+
+### Introduction
+
+* Pourquoi avoir un home server?
+  * Centralise et fournit un control absolue sur les données et traitements
+  * Hybride : peut faire d'autre tâche que son objectif premier
+  * Pleine gestion sur la disponibilité du server
+  * Gestion des sauvegardes
+  * Potentiel maintient de la privacité des données
+* Dois-je réellement sécurisé mon home server?
+  * Si port forward -> alors oui
+* Type de server qui demande à être plus sécuritaire
+
+> Il y a plusieurs façon de sécurisé un home server. Nous couvrirons uniquement ceux que nous jugeons pertinante et intéressante dans le cadre du cours. Aussi, les pratiques mises de l'avant diminue le risque d'intrusion sans pour autant les éliminer à 100%.
+
+> La nonchalance de permettre des connections non autorisés au server n'est pas une mesure de sécurité.
+
+<br>
+<br>
+
+### État art
+
+* SSH
+  * Permet d'avoir un accès shell crypté au server
+* VPN
+  * Permet d'avoir accès a un network qui autrement n'aurait pas été possible
+* Firewall
+* Fail2ban 
+
+
+<br>
+<br>
+
+### Implementation
+
+* SSH
+  * 
+
+
+* SSH + VPN
+  * 
+
+> On ne veut pas éviter le problèmes mais le gérer. Ainsi, on à la situation où on concerve uniquement le ssh et l'autre qui à le ssh et le vpn.
+
+> On ne peut pas accepter uniquement la connection provenant de certain ip
+
+> Ne pas exposer le machines ssh directement sur internet
+
+
 -->
 
 # Home Server
@@ -103,10 +152,9 @@ Ensuite, nous devons autoriser le port SSH dans le firewall en exécutant:
 sudo ufw allow 22/tcp 
 ```
 
-> Il est parfois nécessaire d'incorporer un fichier de confifgu un f
+> Il est parfois nécessaire d'incorporer un fichier de configuration dans <po>/etc/ufw/applications.d</po> pour ajouter des régles détaillé.
 
-<po>/etc/ufw/applications.d</po>
-<po>PlexMediaServer</po>
+Exemple de règle pour un [Plex](https://www.plex.tv/en-ca/)
 
 ```shell
 
@@ -126,6 +174,18 @@ description=The Plex Media Server (with additional DLNA capability)
 ports=32400/tcp|3005/tcp|5353/udp|8324/tcp|32410:32414/udp|1900/udp|32469/tcp
 
 ```
+
+> C'est une bonne pratique de séparer les règles dans plusieurs fichiers. Par exemple, les règles précédante pourrait être contenu dans un fichier <po>PlexMediaServer</po>
+
+Ensuite, il suffit d'activer certaine règle par leur nom. Par exemple:
+```shell
+sudo allow plexmediaserver-all
+```
+
+> Un *reload* est parfois nécessaire pour prendre en considération certaines modifications. `sudo ufw reload`
+
+
+
 
 <br>
 
@@ -555,7 +615,6 @@ Le modèle de sécurité que nous avons présenté permet de contré ce type d'a
 <br>
 
 Le brute force n'en reste pas moins impossible. Toutefois, il est vraiment plus difficle dans tiré profit dans un contexte ou le server accept uniquement les connection par clef ssh en plus d'un passphrase. En effet, brute force une clef rsa de 4096 bit n'est pas impossible, mais il devient extrêmement non trivial de réussir un tel exploit. D'autant plus que dans un contexte de home server, il n'est pas **commun** de voir ce genre de tentative.
-
 
 <br>
 
