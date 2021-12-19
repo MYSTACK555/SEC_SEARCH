@@ -1,22 +1,25 @@
 {
-    "name": "typescript-ssh-jarvis",
-    "version": "0.1.0",
-    "description": "A TypeScript console apps running on Node.js to make the ssh more secure on ubuntu/pop-os/debian server ",
-    "author": "minicarter & MYSTACK555",
-    "license": "MIT",
-    "repository": {
-      "type": "git",
-      "url": "https://github.com/MYSTACK555/SEC_SEARCH"
-    },
-    "scripts": {
-      "compile": "./node_modules/.bin/tsc",
-      "dev": "./node_modules/.bin/tsc-watch --onSuccess \"node ./dist/main.js\"",
-      "lint": "./node_modules/.bin/tslint --project ./tsconfig.json"
-    },
-    "devDependencies": {
-      "@types/node": "^9.4.0",
-      "tsc-watch": "^1.0.16",
-      "tslint": "^5.9.1",
-      "typescript": "^2.6.2"
-    }
+  "name": "typescript-ssh-jarvis",
+  "version": "0.1.0",
+  "description": "A TypeScript console apps running on Node.js to make the ssh more secure on ubuntu/pop-os/debian server ",
+  "author": "minicarter & MYSTACK555",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MYSTACK555/SEC_SEARCH"
+  },
+  "scripts": {
+    "compile": "./node_modules/.bin/tsc",
+    "dev": "./node_modules/.bin/tsc-watch --onSuccess \"node ./dist/main.js\"",
+    "lint": "./node_modules/.bin/tslint --project ./tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "^9.4.0",
+    "tsc-watch": "^1.0.16",
+    "tslint": "^5.9.1",
+    "typescript": "^2.6.2"
+  },
+  "dependencies": {
+    "terminal-kit": "^2.3.0"
   }
+}
