@@ -36,6 +36,7 @@ export class DisableRootLogin implements ICommand {
 
   private editPermitRootLoginInSshd(): Promise<void> {
     const self = this;
+    const lineToAdd = 'PermitRootLogin no';
 
     term('\n').eraseLineAfter.white('Editing sshd_config...');
 
@@ -47,18 +48,34 @@ export class DisableRootLogin implements ICommand {
         }
 
         const re = new RegExp('^(|.)PermitRootLogin.*$', 'gm');
-        // Replace PermitRootLogin with PermitRootLogin no
-        const result = data.replace(re, 'PermitRootLogin no');
 
-        fs.writeFile(self.sshd_config_file, result, 'utf8', async function (error: any) {
-          if (error) {
-            term.red(' Failed');
-            reject(error);
-          }
+        // If PermitRootLogin not found in file
+        if (data.match(re) == null) {
+          // Add new PermitRootLogin line
+          fs.appendFile(self.sshd_config_file, lineToAdd, async function (error: any) {
+            if (error) {
+              term.red(' Failed');
+              reject(error);
+            }
 
-          term.green(' Done');
-          resolve();
-        });
+            term.green(' Done');
+            resolve();
+          });
+        } else {
+          // Replace PermitRootLogin with PermitRootLogin no
+          const result = data.replace(re, lineToAdd);
+
+          // Replace PermitRootLogin to PermitRootLogin no
+          fs.writeFile(self.sshd_config_file, result, 'utf8', async function (error: any) {
+            if (error) {
+              term.red(' Failed');
+              reject(error);
+            }
+
+            term.green(' Done');
+            resolve();
+          });
+        }
       });
     });
   }
