@@ -7,7 +7,7 @@ Program to make ssh more secure on ubuntu/pop-os/debian server.
 ## Installation
 ```shell
 sudo apt install nodejs npm
-sudo npm install typescript ts-node
+sudo npm i -g typescript ts-node
 ```
 
 ## Pre-Utilisation
@@ -32,5 +32,8 @@ Les modifications émises par le script ce font dans le répertoire **Code/virtu
 }
 ```
 
-
 ## Demo
+![](/Demo/1.png)
+![](/Demo/2.png)
+![](/Demo/3.png)
+![](/Demo/4.png)
