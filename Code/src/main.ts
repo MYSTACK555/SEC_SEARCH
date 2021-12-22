@@ -7,8 +7,8 @@ const term = require('terminal-kit').terminal;
 //  'b. Enable SSH key authentication only',
 //  'c. Enable firewall',
 //  'd. Add firewall rule',
-const items = ['a. Disable root login', 'b. Exit'];
-const itemsCommands = [CommandType.DisableRootLogin, CommandType.Exit];
+const items = ['a. Disable root login', 'b. Disable password authentication', 'c. Exit'];
+const itemsCommands = [CommandType.DisableRootLogin, CommandType.DisablePasswordAuthentication, CommandType.Exit];
 
 if (require.main === module) {
   main();

@@ -3,5 +3,6 @@
  */
 export enum CommandType {
   DisableRootLogin,
+  DisablePasswordAuthentication,
   Exit
 }
