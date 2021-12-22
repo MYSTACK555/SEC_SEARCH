@@ -125,6 +125,10 @@ Le problème c'est que port forward notre server nous rend plus propice aux atta
 
 <br>
 
+Ce doument va illustré certaines configurations que nous avons tester et mis en place. D'ailleurs, certaines de ces configuration ont été automatiser dans un projet typescript que nous avons développer et mis disponible sur [GitHub](https://github.com/MYSTACK555/SEC_SEARCH).  
+
+<br>
+
 ## Modèle de sécurité
 
 Sachant que notre server peut être accessible ou interrogé par n'importe qui sur internet, nous avons l'obligation de mettre en place certaines mesures de sécurité afin de protéger nos donnés.
@@ -253,7 +257,7 @@ L'utilisation d'une phrase secrète pour protéger la clé privé est une excell
 Afin de s'authentifier au serveur avec sa clé ssh, le client procède comme suit:
 
 1. Le client initialise la connection ssh
-2. Le serveur génère un message aléatoire
+2. Le serveur génère un message aléatoire <a name="po1"></a>
 3. Le client encrypte le message aléatoire avec sa clé privé
 4. Le serveur décrypte le message encrypté avec la clé publique du client
 5. Dans le cas ou le message décrypté est le même que celui initialement envoyé au client, le serveur envoie une réponse afirmative au client
@@ -366,11 +370,9 @@ Ensuite, il sera impossible de ce connecter avec un mot de passe d'utilisateur.
 ### Ajouter un système MFA à la connexion SSH
 
 
-L'utilisation d'un mot de passe ou la clé SSH sont 2 facteur d'authentification différent. Un facteur d'authentification est une information utiliser afin de prouvé que l'utilisateur à le droit d'effectuer des actions sur un système tel que de s'y connecter. Ces facteurs utilisent différent canaux d'authentification tel qu'un ordinateur, un téléphone cellulaire ou une clé physique d'authentification. C'est le média qui sert a transmettre un facteur d'authentification à l'utilisateur. Afin de renforcer la connexion ssh à notre serveur il est une excellente pratique d'appliquer une sécurité supplémentaire par l'utilisation de MFA (Multi-factor authentification). De cet facons, un attaquant qui réussit à compromettre votre ordinateur de bureau doit aussi obtenir le controle d'un ou plusieurs autres appareils vous appartient afin de pouvoir effectuer ses actions malicieuses. 
+L'utilisation d'un mot de passe ou la clé SSH sont 2 facteur d'authentification différent. Un facteur d'authentification est une information utiliser afin de prouvé que l'utilisateur à le droit d'effectuer des actions sur un système tel que de s'y connecter. Ces facteurs utilisent différent canaux d'authentification tel qu'un ordinateur, un téléphone cellulaire ou une clé physique d'authentification. C'est le média qui sert a transmettre un facteur d'authentification à l'utilisateur. Afin de renforcer la connexion ssh à notre serveur il est une excellente pratique d'appliquer une sécurité supplémentaire par l'utilisation de MFA (Multi-factor authentification). De cet facons, un attaquant qui réussit à compromettre votre ordinateur de bureau doit aussi obtenir le controle d'un ou plusieurs autres appareils vous appartient afin de pouvoir effectuer ses actions malicieuses. Les types de facteurs se catégorise en 3 groupes:
 
 <br>
-
-Les types de facteurs se catégorise en 3 groupes:
 
 * Quelque chose que vous connaissez: un mot de passe ou une question de sécurité
 * Quelque chose que vous possédez: une application d'authentification ou un token de sécurité.
@@ -378,27 +380,132 @@ Les types de facteurs se catégorise en 3 groupes:
 
 <br>
 
-L'un des facteur fréquemment utilisé par les différents systèmes est une application OATH_TOTP. OATH_TOTP (Open Authentication Time-Based One-Time Password)  est un protocole utilisant un mot de passe généralement composé de 6 à 8 caractère utilisable une seul fois qui se rafraichie àprès une période de temps d'environ 30 secondes. Un exemple de ces applications serait Google authenticator ou Microsoft authenticator. 
+L'un des facteur fréquemment utilisé par les différents systèmes est une application OATH_TOTP. OATH_TOTP (Open Authentication Time-Based One-Time Password)  est un protocole utilisant un mot de passe généralement composé de 6 à 8 caractère utilisable une seul fois qui se rafraichie àprès une période de temps d'environ 30 secondes. Un exemple de ces applications serait Google authenticator ou Microsoft authenticator. Un tel système peut être configuré de la facons suivante.
+
+
+<block-text> **Étapes** 
+Installer Google PAM
+</block-title>
+
+   * Installer l'application
+  `sudo apt install libpam-google-authenticator`
+   * Lancer l'application
+  `google-authenticator`
+   * Répondre 'y' à la question `Do you want authentication tokens to be time-based (y/n)`
+   * Répondre 'y' à la question 
+   `Do you want to disallow multiple uses of the same authentication
+token? This restricts you to one login about every 30s, but it increases
+your chances to notice or even prevent man-in-the-middle attacks (y/n)`
+   * Répondre 'n' à la question
+   `By default, tokens are good for 30 seconds and in order to compensate for
+possible time-skew between the client and the server, we allow an extra
+token before and after the current time. If you experience problems with poor
+time synchronization, you can increase the window from its default
+size of 1:30min to about 4min. Do you want to do so (y/n)`
+   * Répondre 'y' à la question
+  `If the computer that you are logging into isn't hardened against brute-force
+login attempts, you can enable rate-limiting for the authentication module.
+By default, this limits attackers to no more than 3 login attempts every 30s.
+Do you want to enable rate-limiting (y/n)`
 
 <br>
 
-Un tel système peut être configuré de la facons suivante.
+<block-text> **Étapes** 
+Configurer Pam pour OpenSSH
+</block-title>
 
-1. Installer Google PAM
-2. Configurer OpenSSH
-3. Rendre SSh attentif au MFA
-4. (optionel) Ajouter un 3e facteur d'authentification
+ * Ouvrir la configuration sshd avec votre éditeur préférer
+`sudo nano /etc/pam.d/sshd`
+ * Commenter la ligne `include common-auth` au début du fichier avec le caractère **#**
+    > Cela informe PAM de ne pas demander pour un mot de passe, mais seulement pour la vérification du second facteur. Laisser la ligne non commenté utilise 3 facteurs (la clé ssh, le mot de passe du compte, la vérification du TOTP)
+ * Ajouter la ligne `auth required pam_google_authenticator.so nullok` à la toute fin du fichier
+   > nullok signifi que la méthode d'authentification PAM est optionnel. cela permet à un utilisateur sans jeton OATH-TOTP de se tout de même se connecter via ssh.
+   **Important**: Retirer la valeur nullok lorsque tout les utilisateurs on configurer leur jeton OATH-TOTP
+ * Sauvegarder et fermer
+
+<br>
+
+<block-text> **Étapes** 
+Configurer ssh pour qu'il gère l'authentification PAM
+</block-title>
+
+* ouvrir le fichier `/etc/ssh/sshd_config` dans votre éditeur préférer
+`sudo nano /etc/ssh/sshd_config`
+* Trouver le paramètre `ChallengeResponseAuthentication` et assigner la valeur yes
+* Ajouter la ligne suivante
+`AuthenticationMethods publickey,password publickey,keyboard-interactive`
+* Sauvegarder et fermer le fichier
+* Redémarer le service sshd
+`sudo systemctl restart sshd.service`
+
+<br>
 
 
-<block-text> **Étapes** </block-text>
+### Configuré un interval de délais d'innactivité
 
+
+Cela permet de fermer une connexion ssh qui n'est plus utilisé. Cela évite de consommé inutilement des ressources systèmes tout en évitant qu'une personne tierce puisse accédé à la connexion en accédant à l'ordinateur de l'utilisateur connecté. Pour cela, il suffit de :
+
+1. Ouvrir le fichier sshd_config avec votre éditeur préférer
+`sudo nano /etc/ssh/sshd_config`
+2. Décommenter et attribué la valeur désirer en seconde `300` (5min) à la variable **ClientAliveInterval**
+3. Sauvegarder et fermer
+4. relancer le service
+`sudo systemctl restart sshd.service`
+
+<br>
+
+### Changer le port SSH par un personnalisé
+
+Le port utiliser par défaut est le 22. Cette valeur est largement connu au sein des attaquant. Les différents outil de sécurité et d'intrusion utilise donc principalement ce port. Même si le modifier reviens à faire de la sécurité par l'ignorance qui est très faible comme sécurité, cela permettera néanmoins de réduire considérablement les attaques automatisés sur le port SSH
+
+1. Ouvrir le fichier sshd_config avec votre éditeur préférer
+`sudo nano /etc/ssh/sshd_config`
+2. Décommenter et attribué la valeur désirer ex. 500 à la variable **Port**
+3. Sauvegarder et fermer
+4. relancer le service
+`sudo systemctl restart sshd.service`
+> Ne pas oublier de modifier le transfert des port sur le routeur pour la même valeur.
+
+<br>
+
+
+### Désactivé le transfer X11
+
+En plus d'être inutile pour un serveur qui est dans 99.9% des cas utiliser avec un terminal, cela empêchera certain vecteur d'attaque qui exploite le transfert X11 qui n'a pas été concu en ayant la sécurité comme point fort lors du développement. Le fait qu'il soit activé n'est pas mauvais dans le cas ou le serveur n'est pas compromis. Le transfert X11 amène une plus grande confiance du coté serveur qu'à celui du client. S'il a été comprimis il peut servir à effectuer une multitude d'action sur la machine du client tel qu'ouvrir ou fermer des fenêtre et espionné les touches saisie et injecté des événement clavier ou sourie. En le désactivant, nous évitons un potentiel vecteur de propagation d'un malware sur la machine client depuis notre serveur.
+Pour cela, il suffit de :
+
+<br>
+
+1. Ouvrir le fichier sshd_config avec votre éditeur préférer
+`sudo nano /etc/ssh/sshd_config`
+2. Changer la valeur pour **no** à la variable **X11Forwarding**
+3. Sauvegarder et fermer
+4. relancer le service
+`sudo systemctl restart sshd.service`
 
 
 <div style="page-break-after: always;"></div>
 
 <br>
 
-## Brute force SSH
+## Attaque pouvant être mené sur un home server
+Tous serveurs peut être la cible d'attaque pricpipalement lorsque les services sont exposer sur le web. 
+parmis celle-ci on peut retrouver les attaques Man-in-the-Middle, le deni de service, brute force des identifiants du port ssh. Certaines sont plus facile à contrer que d'autres.
+
+<br>
+
+### Man-in-the-Middle
+Cette attaque où comme son nom l'indique un acteur malveillant se place entre nous et la machine ou le service que l'on veux joindre a pour but d'intercepter les communications échanger entre les deux entités sans que sa présence ne soit remarquer. dans ce type d'attaque l'homme du milieux peut lire, mais aussi modifier les messages échangés. Le protocole de la connexion SSH avec une clé ssh permet de se prémunir contre cet attaque. En effet, dans le cas ou un utilisateur nommé Ève tenterait de s'imissé entre l'utilisateur Alice et le server de Bob, ève pourrait tenter d'initier la connexion avec Bob à la place d'alice et se faire passer pour le serveur de bob auprès d'alice. Cependant, ève ne réussirait pas a joindre le serveur de bob puisqu'elle ne réusirais pas a passé l'étape de l'encryption du mot générer aléatoirement [à l'étape 2](#po1) puisque sa clé ssh publique n'est pas sauvegarder dans le serveur de bob et donc quand bob tenterais de décoder le message recus par ève, celui-ci ne corresponderait pas au mot qu'il a initialement envoyer et la connection serait abandonné.
+
+<br>
+
+### Attaque par déni de service (DOS)
+Cette attaque qui vise a rendre un système indisponible peut prendre différentes formes. La saturation de la bande passante qui rend ainsi le serveur injoignable et même l'épuisement des ressources système de la machine qui l'empêche de répondre au traffic légitime. Le déni de service opère donc par l'envoie d'une multitude de requêtes rapidement sur la machine visé afin de rendre le service instable voir indisponible. Cette attque est la plus difficile à mitiger pour un home serveur puisque même si des règle de parefeu sont appliquer et bloque les connexions malicieuses. Les demandes de connexion elles peuvent tout de même arriver en quantité énorme et saturé la bande passante. La solution la plus probable dans ce cas est que le fournisseur d'accès internet bloque les requêtes faites vers le home server. Cela dit plusieurs service existe afin de mitiger au maximum ce type d'attaque. Parmis eux on trouve SSHGuard, Fail2ban and DenyHosts. Aucun d'eux n'as été tester ici.
+
+<br>
+
+### Brute force SSH
 
 **Prérequis**
 
@@ -618,7 +725,15 @@ Le brute force n'en reste pas moins impossible. Toutefois, il est vraiment plus 
 
 <br>
 
-<block-title>Référence</block-title>
+## Pour aller plus loin
+- [ ] mettre en place une attaque dos
+- [ ] créer un script regrouppant les différentes configuration mentionné afin d'automatiser la sécurisation du serveur
+- [ ] tester SSHGuard, Fail2ban and DenyHosts pour contrer les attaque par force brute
+
+<br>
+
+## Référence
+
 [Désactivé la connexion root SSH](https://www.ionos.fr/assistance/serveurs-et-cloud/premiers-pas/informations-importantes-sur-la-securite-de-votre-serveur/desactiver-la-connexion-root-ssh/)
 [Qu'est-ce qu'une clé SSH](https://help.gnome.org/users/seahorse/stable/about-ssh.html.fr#:~:text=L'avantage%20d'utiliser%20une,et%20un%20mot%20de%20passe.)
 [schéma d'authentification SSH](https://spectralops.io/blog/guide-to-ssh-keys-in-gitlab/)
