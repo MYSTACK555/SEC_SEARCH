@@ -149,7 +149,7 @@ Pour activer le firewall, exécuter:
 sudo ufw enable
 ```
 
-Ensuite, nous devons autoriser le port SSH dans le firewall en exécutant:
+Ensuite, nous devons autoriser le port SSH (par défaut 22) dans le firewall en exécutant:
 
 ```shell
 sudo ufw allow 22/tcp 
@@ -724,8 +724,100 @@ Le brute force n'en reste pas moins impossible. Toutefois, il est vraiment plus 
 
 <div style="page-break-after: always;"></div>
 
-## Référence
+## Références
 
 [Désactivé la connexion root SSH](https://www.ionos.fr/assistance/serveurs-et-cloud/premiers-pas/informations-importantes-sur-la-securite-de-votre-serveur/desactiver-la-connexion-root-ssh/)
+
+<br>
+
 [Qu'est-ce qu'une clé SSH](https://help.gnome.org/users/seahorse/stable/about-ssh.html.fr#:~:text=L'avantage%20d'utiliser%20une,et%20un%20mot%20de%20passe.)
-[schéma d'authentification SSH](https://spectralops.io/blog/guide-to-ssh-keys-in-gitlab/)
+
+<br>
+
+[Schéma d'authentification SSH](https://spectralops.io/blog/guide-to-ssh-keys-in-gitlab/)
+
+<br>
+
+https://www.reddit.com/r/linux4noobs/comments/9wlqsh/
+
+<br>
+
+https://www.reddit.com/r/admincraft/comments/dw2lq9/how_safe_is_port_forwarding_a_server/
+
+<br>
+
+https://www.digitalocean.com/community/tutorials/how-to-configure-ssh-key-based-authentication-on-a-linux-server
+
+<br>
+
+https://serverfault.com/questions/475468/where-does-ufw-uncomplicated-firewall-save-command-line-rules-to
+
+<br>
+
+
+https://serverfault.com/questions/850659/securing-linux-servers-iptables-vs-fail2ban
+
+<br>
+
+https://security.stackexchange.com/questions/127092/hardening-linux-desktop-machine-against-people-from-my-household
+
+<br>
+
+https://security.stackexchange.com/questions/25137/what-are-some-steps-to-take-for-securing-a-linux-server-that-arent-in-this-list
+
+<br>
+
+https://serverfault.com/questions/258396/ultra-secure-linux-server-ssh-only/
+
+<br>
+
+https://acloudguru.com/blog/engineering/when-you-should-and-should-not-disable-root-login#:~:text=By%20creating%20a%20user%20with,the%20security%20of%20your%20system.
+
+<br>
+
+https://www.howtogeek.com/443156/the-best-ways-to-secure-your-ssh-server/
+
+<br>
+
+https://www.thegeekdiary.com/how-to-allow-ssh-with-empty-passwords-in-linux/#:~:text=PermitEmptyPasswords%20When%20password%20authentication%20is,accounts%20with%20empty%20password%20strings.&text=But%20if%20we%20set%20the,login%20with%20an%20empty%20password.
+
+
+<br>
+
+https://www.reddit.com/r/PleX/comments/4lwu9l/server_being_claimed_by_someone_else/d3qrfat/
+
+<br>
+
+https://linuxize.com/post/how-to-setup-a-firewall-with-ufw-on-ubuntu-18-04/
+
+<br>
+
+https://linuxize.com/post/how-to-set-up-ssh-keys-on-ubuntu-20-04/
+
+<br>
+
+https://askubuntu.com/questions/929934/how-can-i-create-multiple-ssh-keys
+
+<br>
+
+https://askubuntu.com/questions/362280/enter-ssh-passphrase-once
+
+<br>
+
+https://askubuntu.com/questions/174981/how-do-i-configure-ufw-to-allow-ssh-on-another-port
+
+<br>
+
+https://security.stackexchange.com/questions/141857/securing-ssh-connections
+
+<br>
+
+https://opensource.com/article/18/9/linux-iptables-firewalld
+
+<br>
+
+https://serverfault.com/questions/774569/how-can-allow-an-ssh-connection-only-over-vpn
+
+<br>
+
+https://dev.to/natterstefan/docker-tip-how-to-get-host-s-ip-address-inside-a-docker-container-5anh#:~:text=On%20Docker%20for%20Linux%2C%20the,you%20are%20using%20default%20networking.
