@@ -412,7 +412,7 @@ Configurer Pam pour OpenSSH
  * Commenter la ligne `include common-auth` au début du fichier avec le caractère **#**
     > Cela informe PAM de ne pas demander pour un mot de passe, mais seulement pour la vérification du second facteur. Laisser la ligne non commentée utilise 3 facteurs (la clé ssh, le mot de passe du compte, la vérification du TOTP)
  * Ajouter la ligne `auth required pam_google_authenticator.so nullok` à la toute fin du fichier
-   > nullok signifie que la méthode d'authentification PAM est optionnel. Cela permet à un utilisateur sans jeton OATH-TOTP de se tout de même se connecter via ssh.
+   > nullok signifie que la méthode d'authentification PAM est optionnel. Cela permet à un utilisateur sans jeton OATH-TOTP de tout de même se connecter via ssh.
    **Important**: Retirer la valeur nullok lorsque tous les utilisateurs ont configuré leur jeton OATH-TOTP
  * Sauvegarder et fermer
 
@@ -458,7 +458,7 @@ Le port utilisé par défaut est le 22. Cette valeur est largement connue au sei
 3. Sauvegarder et fermer
 4. Relancer le service
 `sudo systemctl restart sshd.service`
-> Ne pas oublier de modifier le transfert des ports sur le routeur pour la même valeur.
+> Ne pas oublier de modifier le transfert des ports sur le routeur pour la même valeur. Aussi, adapter les règles firewall selon le port ssh choisi.
 
 
 <div style="page-break-after: always;"></div>
