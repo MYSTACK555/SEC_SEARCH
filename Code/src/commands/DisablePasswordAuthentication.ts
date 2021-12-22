@@ -18,7 +18,7 @@ export class DisablePasswordAuthentication implements ICommand {
   }
 
   private createSshdBackup(): Promise<Boolean> {
-    term('\n').eraseLineAfter.white('Creating sshd_config backup...' + new Date().getUTCMilliseconds());
+    term('\n').eraseLineAfter.white('Creating sshd_config backup...');
 
     return new Promise<Boolean>((resolve, reject) => {
       // Create sshd_config backup
