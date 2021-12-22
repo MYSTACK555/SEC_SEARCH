@@ -28,7 +28,7 @@ Les modifications émises par le script ce font dans le répertoire **Code/virtu
 **Exemple**
 ```json
 {
-    "linuxSystemPath": ""
+    "linuxSystemPath": "/"
 }
 ```
 

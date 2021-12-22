@@ -22,7 +22,7 @@ export class DisablePasswordAuthentication implements ICommand {
 
     return new Promise<Boolean>((resolve, reject) => {
       // Create sshd_config backup
-      fs.copyFile(this.sshd_config_file, `${this.sshd_config_file}.bak`, (error: any) => {
+      fs.copyFile(this.sshd_config_file, `${this.sshd_config_file}_${new Date().valueOf()}.bak`, (error: any) => {
         if (error) {
           term.red(' Failed');
           resolve(false);
@@ -52,7 +52,7 @@ export class DisablePasswordAuthentication implements ICommand {
         // If PasswordAuthentication not found in file
         if (data.match(re) == null) {
           // Add new PasswordAuthentication line
-          fs.appendFile(self.sshd_config_file, lineToAdd, async function (error: any) {
+          fs.appendFile(self.sshd_config_file, lineToAdd + '\r\n', async function (error: any) {
             if (error) {
               term.red(' Failed');
               reject(error);
